@@ -2,7 +2,12 @@
   "name": "HBV403G-Vef2-EV3",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts"
+    "build": "npx tsc",
+    "start": "node build/index.js",
+    "dev": "tsx watch src/index.ts",
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
+    "lint": "eslint ./src/**/*.js"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.8",
@@ -15,6 +20,13 @@
     "@types/node": "^20.17.23",
     "prisma": "^6.4.1",
     "tsx": "^4.19.3",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.2",
+    "eslint": "^9.20.1",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-jest": "^28.11.0",
+    "eslint-plugin-prettier": "^5.2.2",
+    "prettier": "^3.4.2",
+    "typescript-eslint": "^8.24.1",
+    "vitest": "^3.0.4"
   }
 }

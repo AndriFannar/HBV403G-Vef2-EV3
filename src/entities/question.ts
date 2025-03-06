@@ -1,4 +1,4 @@
-import { answerSchema } from "./answer.js";
+import { AnswerSchema } from "./answer.js";
 import { z } from "zod";
 
 const maxContentLength = 500;
@@ -21,7 +21,7 @@ export const QuestionSchema = z.object({
     .nonempty(),
   slug: z.string().nonempty(),
   answers: z
-    .array(answerSchema)
+    .array(AnswerSchema)
     .length(minNoAnswers, `Question must have ${minNoAnswers} answers`),
 });
 
