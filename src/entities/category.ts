@@ -15,4 +15,5 @@ export const CategorySchema = BaseCategorySchema.extend({
   slug: z.string().nonempty(),
 });
 
+export type BaseCategory = z.infer<typeof BaseCategorySchema>;
 export type Category = z.infer<typeof CategorySchema>;
