@@ -1,10 +1,5 @@
+import type { Category, BaseCategory } from "../entities/category.js";
 import { PrismaClient } from "@prisma/client";
-import type {
-  CategorySchema,
-  Category,
-  BaseCategory,
-} from "../entities/category.js";
-import { z } from "zod";
 
 const prisma = new PrismaClient();
 

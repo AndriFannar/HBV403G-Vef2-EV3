@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const minTitleLength = 3;
-const maxTitleLength = 500;
+const maxTitleLength = 64;
 
 export const BaseCategorySchema = z.object({
   name: z
