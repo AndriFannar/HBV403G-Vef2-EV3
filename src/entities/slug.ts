@@ -1,8 +1,20 @@
-import { z } from "zod";
+/**
+ * @file slug.ts
+ * @description A schema for validating slugs.
+ * @author Andri Fannar Kristjánsson
+ * @version 1.0.0
+ * @date March 04, 2025
+ * @dependencies zod
+ */
+
+import { z } from 'zod';
 
 const minSlugLength = 3;
 const maxSlugLength = 550;
 
+/**
+ * A schema for validating slugs.
+ */
 export const SlugSchema = z
   .string()
   .min(minSlugLength, `Slug must be at least ${minSlugLength} letters`)

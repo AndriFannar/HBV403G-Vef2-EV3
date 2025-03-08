@@ -1,135 +1,163 @@
-import { validateAndSanitizeBaseCategory } from "../lib/validation/categoryValidator.js";
-import { validateAndSanitizeSlug } from "../lib/validation/slugValidator.js";
-import { BaseCategorySchema, CategorySchema } from "../entities/category.js";
-import { SlugSchema } from "../entities/slug.js";
-import { hc } from "hono/client";
+/**
+ * @file categories.ts
+ * @description Contains the routes for the categories endpoint of the API.
+ * @author Andri Fannar Kristjánsson
+ * @version 1.0.0
+ * @date March 04, 2025
+ * @dependencies hono, logger.ts, slugValidator.ts, categoryValidator.ts, categories.db.ts, http-status-codes
+ */
+
+import { validateAndSanitizeBaseCategory } from '../lib/validation/categoryValidator.js';
+import { validateAndSanitizeSlug } from '../lib/validation/slugValidator.js';
+import { StatusCodes } from 'http-status-codes';
+import { logger } from '../lib/io/logger.js';
 import {
   createCategory,
   deleteCategory,
   getCategories,
   getCategory,
   updateCategory,
-} from "../db/categories.db.js";
-import { Hono } from "hono";
-import { get } from "http";
-import xss from "xss";
+} from '../db/categories.db.js';
+import { Hono } from 'hono';
 
 export const categoriesApp = new Hono()
-  .get("/", async (c) => {
+
+  /**
+   * @description Get all categories
+   */
+  .get('/', async c => {
     try {
       const categories = await getCategories();
       return c.json(categories);
     } catch (e) {
-      console.error("Failed to get categories:", e);
+      logger.error('Failed to get categories:', e);
       throw e;
     }
   })
 
-  .get("/:slug", async (c) => {
+  /**
+   * @description Get a category by slug
+   */
+  .get('/:slug', async c => {
     try {
-      const slug = await validateAndSanitizeSlug(c.req.param("slug"));
+      const slug = await validateAndSanitizeSlug(c.req.param('slug'));
       if (!slug.data) {
-        return c.json({ message: "Invalid slug" }, 400);
+        return c.json({ message: 'Invalid slug' }, StatusCodes.BAD_REQUEST);
       }
 
       const category = await getCategory(slug.data);
 
       if (!category) {
-        return c.json({ message: "Category not found" }, 404);
+        return c.json({ message: 'Category not found' }, StatusCodes.NOT_FOUND);
       }
 
       return c.json(category);
     } catch (e) {
-      console.error("Failed to get category:", e);
+      logger.error('Failed to get category:', e);
       throw e;
     }
   })
 
-  .post("/", async (c) => {
+  /**
+   * @description Create a new category
+   */
+  .post('/', async c => {
     try {
       let newCategory: unknown;
       try {
         newCategory = await c.req.json();
-      } catch (e) {
-        return c.json({ message: "Invalid JSON" }, 400);
+      } catch {
+        return c.json({ message: 'Invalid JSON' }, StatusCodes.BAD_REQUEST);
       }
 
       const validCategory = await validateAndSanitizeBaseCategory(newCategory);
 
       if (!validCategory.data) {
         return c.json(
-          { message: "Invalid data", errors: validCategory.error },
-          400
+          { message: 'Invalid data', errors: validCategory.error },
+          StatusCodes.BAD_REQUEST
         );
       }
 
       const createdCategory = await createCategory(validCategory.data);
-      return c.json(createdCategory, 201);
+      return c.json(createdCategory, StatusCodes.CREATED);
     } catch (e) {
-      console.error("Failed to create category:", e);
+      logger.error('Failed to create category:', e);
       throw e;
     }
   })
 
-  .patch("/:slug", async (c) => {
+  /**
+   * @description Update a category by slug
+   */
+  .patch('/:slug', async c => {
     try {
       let updatedCategoryInfo: unknown;
       try {
         updatedCategoryInfo = await c.req.json();
-      } catch (e) {
-        return c.json({ message: "Invalid JSON" }, 400);
+      } catch {
+        return c.json({ message: 'Invalid JSON' }, StatusCodes.BAD_REQUEST);
       }
 
-      const slug = await validateAndSanitizeSlug(c.req.param("slug"));
+      const slug = await validateAndSanitizeSlug(c.req.param('slug'));
       if (!slug.data) {
-        return c.json({ message: "Invalid slug" }, 400);
+        return c.json({ message: 'Invalid slug' }, StatusCodes.BAD_REQUEST);
       }
 
       if (getCategory(slug.data) === null) {
-        return c.json({ message: "Category not found" }, 404);
+        return c.json({ message: 'Category not found' }, StatusCodes.NOT_FOUND);
       }
 
-      const validCategory = BaseCategorySchema.safeParse(updatedCategoryInfo);
+      const validCategory =
+        await validateAndSanitizeBaseCategory(updatedCategoryInfo);
 
-      if (!validCategory.success) {
+      if (!validCategory.data) {
         return c.json(
-          { message: "Invalid data", errors: validCategory.error.flatten() },
-          400
+          { message: 'Invalid data', errors: validCategory.error },
+          StatusCodes.BAD_REQUEST
         );
       }
 
-      validCategory.data.name = xss(validCategory.data.name);
       const updatedCategory = await updateCategory(
-        c.req.param("slug"),
+        c.req.param('slug'),
         validCategory.data
       );
       return c.json(updatedCategory);
     } catch (e) {
-      console.error("Failed to update category:", e);
+      logger.error('Failed to update category:', e);
       throw e;
     }
   })
 
-  .delete("/:slug", async (c) => {
+  /**
+   * @description Delete a category by slug
+   */
+  .delete('/:slug', async c => {
     try {
-      const slug = await validateAndSanitizeSlug(c.req.param("slug"));
+      const slug = await validateAndSanitizeSlug(c.req.param('slug'));
       if (!slug.data) {
-        return c.json({ message: "Invalid slug" }, 400);
+        return c.json({ message: 'Invalid slug' }, StatusCodes.BAD_REQUEST);
       }
 
       if ((await getCategory(slug.data)) === null) {
-        return c.json({ message: "Category not found" }, 404);
+        return c.json({ message: 'Category not found' }, StatusCodes.NOT_FOUND);
       }
 
       await deleteCategory(slug.data);
-      return c.body(null, 204);
+      return c.body(null, StatusCodes.NO_CONTENT);
     } catch (e) {
-      console.error("Failed to delete category:", e);
+      logger.error('Failed to delete category:', e);
       throw e;
     }
   })
 
+  /**
+   * @description Error handling for internal server errors
+   */
   .onError((err, c) => {
-    console.error("Internal Server Error:", err);
-    return c.json({ message: "Internal Server Error" }, 500);
+    logger.error('Internal Server Error:', err);
+    return c.json(
+      { message: 'Internal Server Error' },
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
   });

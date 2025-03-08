@@ -8,13 +8,13 @@ datasource db {
 }
 
 model answers {
-  id          Int       @id @default(autoincrement())
-  question_id Int
-  answer      String    @db.VarChar(500)
-  is_correct  Boolean
-  questions   questions @relation(fields: [question_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id         Int       @id @default(autoincrement())
+  questionId Int
+  answer     String    @db.VarChar(500)
+  isCorrect  Boolean
+  questions  questions @relation(fields: [questionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  @@index([question_id], map: "idx_answers_question_id")
+  @@index([questionId], map: "idx_answers_question_id")
 }
 
 model categories {
@@ -25,10 +25,10 @@ model categories {
 }
 
 model questions {
-  id          Int        @id @default(autoincrement())
-  category_id Int
-  question    String     @db.VarChar(500)
-  slug        String     @unique
-  answers     answers[]
-  categories  categories @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id         Int        @id @default(autoincrement())
+  categoryId Int
+  question   String     @db.VarChar(500)
+  slug       String     @unique
+  answers    answers[]
+  categories categories @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
