@@ -1,18 +1,34 @@
-import { AnswerSchema } from "./answer.js";
-import { z } from "zod";
+/**
+ * @file question.ts
+ * @description A schema for validating questions.
+ * @author Andri Fannar Kristjánsson
+ * @version 1.0.0
+ * @date March 04, 2025
+ * @dependencies zod, answer.ts
+ */
+import { BaseAnswerSchema } from './answer.js';
+import { z } from 'zod';
 const maxContentLength = 500;
 const minContentLength = 3;
 const minNoAnswers = 2;
-export const QuestionSchema = z.object({
-    id: z.number(),
-    category_id: z.number(),
+/**
+ * A schema for validating new questions.
+ */
+export const BaseQuestionSchema = z.object({
+    categoryId: z.number(),
     question: z
         .string()
         .min(minContentLength, `Content must be at least ${minContentLength} letters`)
         .max(maxContentLength, `Content must be at most ${maxContentLength} letters`)
         .nonempty(),
-    slug: z.string().nonempty(),
     answers: z
-        .array(AnswerSchema)
+        .array(BaseAnswerSchema)
         .length(minNoAnswers, `Question must have ${minNoAnswers} answers`),
+});
+/**
+ * A schema for validating questions.
+ */
+export const QuestionSchema = BaseQuestionSchema.extend({
+    id: z.number(),
+    slug: z.string().nonempty(),
 });

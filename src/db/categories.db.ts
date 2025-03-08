@@ -4,14 +4,14 @@
  * @author Andri Fannar Kristjánsson
  * @version 1.0.0
  * @date March 04, 2025
- * @dependencies category.js, @prisma/client, logger
+ * @dependencies category.jsS, @prisma/client, logger
  */
 
 import type { Category, BaseCategory } from '../entities/category.js';
 import { PrismaClient } from '@prisma/client';
 
 const defaultNumCategories = 10;
-const prisma = new PrismaClient();
+export const prisma = new PrismaClient();
 
 /**
  * Gets all categories.

@@ -104,7 +104,7 @@ export const categoriesApp = new Hono()
         return c.json({ message: 'Invalid slug' }, StatusCodes.BAD_REQUEST);
       }
 
-      if (getCategory(slug.data) === null) {
+      if ((await getCategory(slug.data)) === null) {
         return c.json({ message: 'Category not found' }, StatusCodes.NOT_FOUND);
       }
 
